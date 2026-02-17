@@ -1,0 +1,2 @@
+# Bookkeeping_Automation
+A private automation program for bookkeeping processes connected to Intuit Quickbooks. Handles Invoice and Customer upload via the Quickbooks API, reading and updating Excel sheets, creating customer scannable QR Codes for payable invoice links, and processing docx Mail Merge.
