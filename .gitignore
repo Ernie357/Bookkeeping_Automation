@@ -6,3 +6,4 @@ qr_codes/
 *.xlsx
 *.csv
 test.py
+.env
