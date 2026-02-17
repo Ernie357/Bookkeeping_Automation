@@ -3,12 +3,17 @@ from QRCodeHandler import QRCodeHandler
 from ExcelHandler import ExcelHandler
 from ExcelHandler import CorrespondingData
 from MailMergeHandler import MailMergeHandler
+from dotenv import load_dotenv
+import os
 import traceback
 
-realm_id = "9341456354221278"
-access_token = "eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwieC5vcmciOiJIMCJ9..9Jfb4e02f9r6NgcIFhJi6w.CLHQPvxir-rnrwJz60E1DXyVRrKEmq9ulgzTptuHCDMf-rCN-qPQqLUFqD5Q4FDzv-luPfngJOoO3Na3qXvmcPzQecEocHQ9-0G1UeL1e5Pj_E7tqXTUrWZZSNumie-PhJznhF6vJU2Vsr4zZ9mDS1-nGDFPm1XYyKVH9u37g-AhEXIkoCj5gBy0dHaRvQmdfDjmLy0LxowbztPkuJ58Kbxx2rhkDXXy_fwKR4XHfpJioZqvCieDjl6GmvV-y5h0auOuqUv76_Ok97Wkg8sXgGOcodbEP6Cshqeu7RVsZruNNzASerHoNyNeinzwGSEx9PgdyUwM1srhH0Br4qWSs3-crX8JbVoLuLV4UOULO0yftHMEm_bFlN1o_ABrYMu8WEHNX1kTFvDceNfxnMoas_89k9x9BQR_eYdg34yAisAel1S6d5ZMJpnlvpDp0YLboEOK2cjOFNnAIGChzKhrbc8HSRCxuOBkJAzAOaNrsio.wTPbOUtZ3vEPhy7IaUNR9g"
 if __name__ == "__main__":
     try:
+        load_dotenv()
+        realm_id = os.getenv('REALM_ID')
+        access_token = os.getenv('ACCESS_TOKEN')
+        if realm_id is None or access_token is None:
+            raise Exception("Missing .env variables.")
         print("\n")
         qh = QuickbooksInvoiceHandler(realm_id=realm_id, access_token=access_token)
         qr = QRCodeHandler()
