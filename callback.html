@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QuickBooks Authorization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .code-box {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        button {
+            background: #2ca01c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #248a17;
+        }
+    </style>
+</head>
+<body>
+    <h2>QuickBooks Authorization</h2>
+    <div id="content"></div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        const realmId = params.get('realmId');
+        const error = params.get('error');
+
+        const content = document.getElementById('content');
+
+        if (error) {
+            content.innerHTML = `
+                <p style="color: red;">Authorization failed: ${error}</p>
+                <p>${params.get('error_description') || ''}</p>
+            `;
+        } else if (code && realmId) {
+            content.innerHTML = `
+                <p>✅ Authorization successful!</p>
+                <p><strong>Copy these values into your application:</strong></p>
+                
+                <p>Authorization Code:</p>
+                <div class="code-box" id="code">${code}</div>
+                <button onclick="copyToClipboard('code')">Copy Code</button>
+                
+                <p>Realm ID:</p>
+                <div class="code-box" id="realmId">${realmId}</div>
+                <button onclick="copyToClipboard('realmId')">Copy Realm ID</button>
+            `;
+        } else {
+            content.innerHTML = '<p>No authorization data received.</p>';
+        }
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>
