@@ -1,9 +1,12 @@
 import pathlib
-from typing import NamedTuple
 from openpyxl.utils import column_index_from_string
 from datetime import datetime
+import os
+import sys
 
 def get_full_script_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
     return pathlib.Path(__file__).parent.resolve()
 
 merge_name_map = {

@@ -1,19 +1,19 @@
 import qrcode
 import os
-from typing import List
+from typing import List, Callable
 from PIL.Image import Image
 from ExcelHandler import ExcelHandler
 from ExcelHandler import CorrespondingData
-from MailMergeHandler import MailMergeHandler
 from utils import get_full_script_dir
 
 ''' 
     Handles QRCode generation and holds program data about them and their links
 '''
 class QRCodeHandler:
-    def __init__(self):
+    def __init__(self, is_prod: bool):
         self.code_paths: List[str] = []
         self.code_links: List[str] = []
+        self.is_prod = is_prod
 
     ''' 
         Takes link to generate from and a filename to name the output,
@@ -43,7 +43,12 @@ class QRCodeHandler:
 
         target_dir must just be a name with no slashes or dots, like "qr_codes"
     '''
-    def generate_qr_codes(self, target_dir: str, ids: List[int]):
+    def generate_qr_codes(
+            self, 
+            target_dir: str, 
+            ids: List[int], 
+            prod_link_function: Callable[[int], str]
+        ):
         print("Generating QR Codes...")
         if len(ids) <= 0:
             print("\nNo data found. No QR Codes to generate.")
@@ -52,8 +57,9 @@ class QRCodeHandler:
         if not os.path.exists(full_target_dir):
             os.makedirs(full_target_dir)
         for id in ids:
-            # link = self.generate_invoice_link(id) (prod)
-            link = f"https://app.qbo.intuit.com/app/invoice?txnId={id}"
+            dev_link = f"https://app.qbo.intuit.com/app/invoice?txnId={id}"
+            link = prod_link_function(id) if self.is_prod else dev_link
+            print("QR Link:", link)
             filename = f"invoice_link_{id}.png"
             (img, _) = self.make_image_from_link(link, filename)
             save_path = f"{full_target_dir}\\{filename}"

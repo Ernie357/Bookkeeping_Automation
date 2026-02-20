@@ -80,6 +80,7 @@ class ExcelHandler:
         for idx, id in enumerate(ids):
             for row in self.ws.iter_rows(min_row=row_num if ids_asc else 2):
                 if row[col_num].value is None:
+                    print("ID", id, "not found in spreadsheet.")
                     break
                 row_num = row[col_num].row
                 if row[col_num].value == id:

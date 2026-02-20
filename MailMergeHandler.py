@@ -1,7 +1,8 @@
 from mailmerge import MailMerge
 from docx import Document
-from utils import merge_id_key
+from utils import get_full_script_dir, merge_id_key
 from typing import List
+import os
 
 '''
     Takes the filename of the docx template with MERGEFIELD names;
@@ -45,7 +46,12 @@ class MailMergeHandler:
         print("\nInitiating Merge for invoice #", id, "...")
         image = str(merge_data.pop("QR_Image"))
         self.template_document.merge(**merge_data)
-        out_file = f"./invoice_mail/invoice_{id}.docx"
+        out_dir = "invoice_mail"
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+        script_path = get_full_script_dir()
+        full_target_dir = f"{script_path}\\{out_dir}"
+        out_file = f"{full_target_dir}\\invoice_{id}.docx"
         self.write_document_out(out_file=out_file)
         image_pairs = [("media/image4", image)]
         self.replace_images(doc_filename=out_file, image_pairs=image_pairs)

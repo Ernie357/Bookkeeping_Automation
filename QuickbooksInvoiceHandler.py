@@ -8,9 +8,10 @@ from typing import List
     gathers data from and interacts with the Quickbooks API
 '''
 class QuickbooksInvoiceHandler():
-    def __init__(self, realm_id: str, access_token: str):
+    def __init__(self, realm_id: str, access_token: str, is_prod: bool):
         self.realm_id = realm_id
         self.access_token = access_token
+        self.url_base = "https://quickbooks.api.intuit.com/v3/company/" if is_prod else "https://sandbox-quickbooks.api.intuit.com/v3/company/"
         self.invoice_ids: List[int] = []
         self.invoice_urls: List[str] = []
         self.qr_code_paths: List[str] = []
@@ -19,7 +20,7 @@ class QuickbooksInvoiceHandler():
     ''' Takes customer DisplayName to check, returns their ID or -1 if not found '''
     def customer_exists(self, name: str) -> int:
         print("\nChecking to see if customer", name, "already exists...")
-        url = f"https://sandbox-quickbooks.api.intuit.com/v3/company/{self.realm_id}/query?minorversion=65"
+        url = f"{self.url_base}{self.realm_id}/query?minorversion=65"
         headers = {
             "Authorization": f"Bearer {self.access_token}",
             "Accept": "application/json",
@@ -52,7 +53,7 @@ class QuickbooksInvoiceHandler():
         payload = {
             "DisplayName": name
         }
-        url = f"https://sandbox-quickbooks.api.intuit.com/v3/company/{self.realm_id}/customer?minorversion=65"
+        url = f"{self.url_base}{self.realm_id}/customer?minorversion=65"
         response = requests.post(url=url, headers=headers, json=payload)
         if response.status_code in (200, 201):
             data = response.json()
@@ -71,7 +72,7 @@ class QuickbooksInvoiceHandler():
             "Accept": "application/json",
             "Content-Type": "application/json"
         }
-        url = f"https://sandbox-quickbooks.api.intuit.com/v3/company/{self.realm_id}/invoice?minorversion=65"
+        url = f"{self.url_base}{self.realm_id}/invoice?minorversion=65"
         payload = {
             "Line": [
                 {
@@ -106,6 +107,8 @@ class QuickbooksInvoiceHandler():
     def import_csv(self, filename: str):
         print("Importing CSV data to QuickBooks...\n")
         with open(filename) as file:
+            if not file:
+                raise Exception("CSV file", filename, "not found.")
             reader = csv.DictReader(file)
             invoices = [row for row in reader]
             for inv in invoices:
@@ -119,9 +122,9 @@ class QuickbooksInvoiceHandler():
                 self.invoice_numbers.append(inv["*InvoiceNo"])
 
     ''' Takes invoice ID, returns that invoices payment link from API '''
-    def generate_invoice_link(self, id: int) -> str | None:
+    def generate_invoice_link(self, id: int) -> str:
         print("\nGenerating invoice link for ID", id)
-        url = f"https://sandbox-quickbooks.api.intuit.com/v3/company/{self.realm_id}/invoice/{id}?include=invoiceLink&minorversion=65"
+        url = f"{self.url_base}{self.realm_id}/invoice/{id}?include=invoiceLink&minorversion=65"
         headers = {
             "Authorization": f"Bearer {self.access_token}",
             "Accept": "application/json"
@@ -132,9 +135,9 @@ class QuickbooksInvoiceHandler():
             link = data.get("Invoice", {}).get("InvoiceLink", None)
             if link is None:
                 print("Could not find invoice link for ID", id)
-                return None
+                return ""
             print("Invoice Link:", link)
             return link
         else:
             print("Error generating invoice link for ID", id)
-            return None
+            return ""
