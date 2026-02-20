@@ -7,3 +7,5 @@ qr_codes/
 *.csv
 test.py
 .env
+dist/
+build/
